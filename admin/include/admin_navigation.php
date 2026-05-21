@@ -58,6 +58,21 @@
                     <li>
                         <a href="dependents.php"><i class="fa fa-fw fa-user-shield"></i> Dependents</a>
                     </li>
+
+                    <!-- Start of Promotions Section -->
+                    <li>
+                        <a href="javascript:;" data-toggle="collapse" data-target="#promos_dropdown"><i class="fa fa-fw fa-tags"></i> Promotions <i class="fa fa-fw fa-caret-down"></i></a>
+                        <ul id="promos_dropdown" class="collapse">
+                            <li>
+                                <a href="promos.php?source=add_promo">Add Promotion</a>
+                            </li>
+                            <li>
+                                <a href="promos.php">View All Promotions</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <!-- End of Promotions Section -->
+
                     <li>
                         <a href="javascript:;" data-toggle="collapse" data-target="#employees_dropdown"><i class="fa fa-fw fa-file-text"></i> Employees <i class="fa fa-fw fa-caret-down"></i></a>
                         <ul id="employees_dropdown" class="collapse">
