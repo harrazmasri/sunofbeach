@@ -8,10 +8,12 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="./index.php"><img src="./images/title.png" style="width:200px; height: 40px; position:initial; padding-top: 10px;"></a>
+                <div class="h-[70px] flex items-center">
+                    <a class="navbar-brand" href="./index.php"><img src="./images/title.png" style="width:200px; height: 40px; position:initial; padding-top: 10px;"></a>
+                </div>
             </div>
             <!-- Collect the nav links, forms, and other content for toggling -->
-            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1" style="padding-top:10px;font-size:20px">
+            <div class="h-[70px] flex items-center">
                 <ul class="nav navbar-nav">
                   
                      <li>
