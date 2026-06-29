@@ -1,5 +1,4 @@
 <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-            <!-- Brand and toggle get grouped for better mobile display -->
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
                     <span class="sr-only">Toggle navigation</span>
@@ -9,7 +8,6 @@
                 </button>
                 <a class="navbar-brand" href="index.php"><img src="../images/title.png" style="height: 30px; width: 200px;"></a>
             </div>
-            <!-- Top Menu Items -->
             <ul class="nav navbar-right top-nav">
                 <li><a href="../index.php">Home Page</a></li>
                 
@@ -32,7 +30,6 @@
                     </ul>
                 </li>
             </ul>
-            <!-- Sidebar Menu Items - These collapse to the responsive navigation menu on small screens -->
             <div class="collapse navbar-collapse navbar-ex1-collapse">
                 <ul class="nav navbar-nav side-nav">
                     <li class="active">
@@ -59,7 +56,6 @@
                         <a href="dependents.php"><i class="fa fa-fw fa-user-shield"></i> Dependents</a>
                     </li>
 
-                    <!-- Start of Promotions Section -->
                     <li>
                         <a href="javascript:;" data-toggle="collapse" data-target="#promos_dropdown"><i class="fa fa-fw fa-tags"></i> Promotions <i class="fa fa-fw fa-caret-down"></i></a>
                         <ul id="promos_dropdown" class="collapse">
@@ -71,8 +67,6 @@
                             </li>
                         </ul>
                     </li>
-                    <!-- End of Promotions Section -->
-
                     <li>
                         <a href="javascript:;" data-toggle="collapse" data-target="#employees_dropdown"><i class="fa fa-fw fa-file-text"></i> Employees <i class="fa fa-fw fa-caret-down"></i></a>
                         <ul id="employees_dropdown" class="collapse">
@@ -98,7 +92,9 @@
                     <li>
                         <a href="profile.php"><i class="fa fa-fw fa-file"></i> Profile</a>
                     </li> 
+                    <li>
+                        <a href="feedback.php"><i class="fa fa-fw fa-comments"></i> Manage Feedback</a>
+                    </li>
                 </ul>
             </div>
-            <!-- /.navbar-collapse -->
-        </nav>
+            </nav>
