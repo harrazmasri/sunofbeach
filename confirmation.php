@@ -39,6 +39,8 @@ $dep_name          = null;
 // -------------------------------------------------------------
 // Secure Data Retrieval using Prepared Statements
 // -------------------------------------------------------------
+$promo = $_GET['promo'];
+
 if (isset($_GET['u']) && !empty($_GET['u'])) {
     $booking_id = $_GET['u'];
 
@@ -348,6 +350,7 @@ if (isset($_GET['u']) && !empty($_GET['u'])) {
                         <th><span>Hotel</span></th>
                         <th><span>No of Days</span></th>
                         <th><span>Rate</span></th>
+                        <th><span>Discount</span></th>
                         <th><span>Price</span></th>
                     </tr>
                 </thead>
@@ -357,6 +360,7 @@ if (isset($_GET['u']) && !empty($_GET['u'])) {
                         <td><span><?php echo htmlspecialchars($branch_name); ?></span></td>
                         <td><span><?php echo htmlspecialchars($days); ?></span></td>
                         <td><span>RM <?php echo htmlspecialchars($amount); ?></span></td>
+                        <td><span><?php echo htmlspecialchars($promo); ?>%</span></td>
                         <td><span>RM <?php echo htmlspecialchars($total_amount); ?></span></td>
                     </tr>
                 </tbody>
@@ -365,7 +369,7 @@ if (isset($_GET['u']) && !empty($_GET['u'])) {
             <table class="balance">
                 <tr>
                     <th style="background: #f57c00; color: #fff"><span>Total</span></th>
-                    <td><span>RM <?php echo htmlspecialchars($total_amount); ?></span></td>
+                     <td><span>RM <?php echo htmlspecialchars($total_amount); ?></span></td>
                 </tr>
             </table>
         </article>

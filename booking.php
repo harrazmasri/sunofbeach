@@ -28,18 +28,34 @@ $check_in = isset($_GET['cin']) ? mysqli_real_escape_string($con, $_GET['cin']) 
 $check_out = isset($_GET['cout']) ? mysqli_real_escape_string($con, $_GET['cout']) : date('Y-m-d', strtotime('+1 day'));
 $branch_id = isset($_GET['branch']) ? mysqli_real_escape_string($con, $_GET['branch']) : '1';
 
-// 4. Find an available room
-$query = "SELECT r.room_id FROM rooms r 
+$query = "SELECT r.room_id,
+                 CASE 
+                    WHEN s.room_id IS NOT NULL THEN 'simple'
+                    WHEN d.room_id IS NOT NULL THEN 'deluxe'
+                    WHEN st.room_id IS NOT NULL THEN 'suite'
+                    ELSE 'unknown'
+                 END as room_category
+          FROM rooms r 
+          LEFT JOIN simple s ON r.room_id = s.room_id
+          LEFT JOIN deluxe d ON r.room_id = d.room_id
+          LEFT JOIN suite st ON r.room_id = st.room_id
           WHERE r.branch_id = '$branch_id' 
+          AND (
+              ('$the_room_category' = 'simple' AND s.room_id IS NOT NULL) OR
+              ('$the_room_category' = 'deluxe' AND d.room_id IS NOT NULL) OR
+              ('$the_room_category' = 'suite' AND st.room_id IS NOT NULL)
+          )
           AND r.room_id NOT IN (
               SELECT f.room_id FROM forr f 
               WHERE ('$check_in' < f.check_out_date AND '$check_out' > f.check_in_date)
           ) LIMIT 1";
-
+          
 $select_room = mysqli_query($con, $query);
 
 if($row = mysqli_fetch_assoc($select_room)){
     $room_id = $row['room_id'];
+    echo $room_id;
+    echo "<pre>".json_encode($row)."</pre>";
 }
 
 // 5. Calculate Total Amount
@@ -242,7 +258,7 @@ if(isset($_POST['add_booking'])){
         ");
         confirm($insert_generates_query);
 
-        header("Location: confirmation.php?u=$booking_id&cat=$the_room_category");
+        header("Location: confirmation.php?u=$booking_id&cat=$the_room_category&promo=$discount_percentage&branch=$branch_id");
         exit();
     }
 }
