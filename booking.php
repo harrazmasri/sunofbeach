@@ -71,9 +71,10 @@ if(isset($_POST['add_booking'])){
 
     // ================= PROMO CODE LOGIC =================
     $final_total = $total_amt;
-    if(!empty($_POST['promo_code'])){
+    // DIBAIKI: Menggunakan $_POST['user_promo'] supaya sepadan dengan nama input HTML di bawah
+    if(!empty($_POST['user_promo'])){
 
-        $promo_code_used = mysqli_real_escape_string($con, $_POST['promo_code']);
+        $promo_code_used = mysqli_real_escape_string($con, $_POST['user_promo']);
 
         $promo_query = "
             SELECT * FROM promotions
@@ -180,23 +181,25 @@ if(isset($_POST['add_booking'])){
         $bill_id = rand(100000, 999999);
         $booking_date = date('Y-m-d H:i:s');
 
-        mysqli_query($con, "
+        // DIBAIKI: Menyusun semula tanda koma dan petik pembuka SQL yang hilang
+        $insert_booking_query = mysqli_query($con, "
             INSERT INTO booking(
                 cust_id,
                 Booking_id,
                 room_id,
-                branch_id
+                branch_id,
                 promo_code
             ) VALUES(
                 '$the_cust_id',
                 '$booking_id',
                 '$room_id',
-                '$branch_id'
-                $promo_code_used'
+                '$branch_id',
+                '$promo_code_used'
             )
         ");
+        confirm($insert_booking_query); // Memastikan ralat SQL ditangkap sekiranya gagal
 
-        mysqli_query($con, "
+        $insert_bill_query = mysqli_query($con, "
             INSERT INTO bill(
                 cust_id,
                 Bill_id,
@@ -209,8 +212,9 @@ if(isset($_POST['add_booking'])){
                 '$payment_type'
             )
         ");
+        confirm($insert_bill_query);
 
-        mysqli_query($con, "
+        $insert_forr_query = mysqli_query($con, "
             INSERT INTO forr(
                 Booking_id,
                 room_id,
@@ -223,8 +227,9 @@ if(isset($_POST['add_booking'])){
                 '$check_out'
             )
         ");
+        confirm($insert_forr_query);
 
-        mysqli_query($con, "
+        $insert_generates_query = mysqli_query($con, "
             INSERT INTO generates(
                 Booking_id,
                 Bill_id,
@@ -235,6 +240,7 @@ if(isset($_POST['add_booking'])){
                 '$booking_date'
             )
         ");
+        confirm($insert_generates_query);
 
         header("Location: confirmation.php?u=$booking_id&cat=$the_room_category");
         exit();
@@ -248,15 +254,12 @@ if(isset($_POST['add_booking'])){
     <title>Booking | Hotel Management</title>
 
     <meta charset="utf-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <link href="css/bootstrap.css" rel="stylesheet">
-
     <link rel="stylesheet" href="./css/style.css" />
 
     <style>
-
         .section {
             min-height: 100vh;
             background: url('./images/background2.jpg') no-repeat center center fixed;
@@ -323,7 +326,6 @@ if(isset($_POST['add_booking'])){
             margin-left: 10px;
             cursor: pointer;
         }
-
     </style>
 </head>
 
@@ -332,168 +334,78 @@ if(isset($_POST['add_booking'])){
 <?php include "include/navigation.php" ?>
 
 <div class="section">
-
     <div class="container">
-
         <div class="row justify-content-center">
-
             <div class="col-md-10">
-
                 <div class="booking-form">
 
                     <div class="text-center mb-4">
-
                         <h1>Make Your Reservation</h1>
-
                         <p>
-                            Category:
-                            <?php echo ucfirst($the_room_category); ?>
-                            |
-                            Branch:
-                            <?php echo $branch_id; ?>
+                            Category: <?php echo ucfirst($the_room_category); ?> | Branch: <?php echo $branch_id; ?>
                         </p>
-
                     </div>
 
                     <?php if($warning): ?>
-
                         <div class="error-msg">
                             <?php echo $warning; ?>
                         </div>
-
                     <?php endif; ?>
 
                     <form action="" method="post" id="confirm_form">
 
                         <div class="row">
-
                             <div class="col-md-6">
-                                <input class="form-control"
-                                       type="text"
-                                       placeholder="First Name"
-                                       name="f_name"
-                                       required>
+                                <input class="form-control" type="text" placeholder="First Name" name="f_name" required>
                             </div>
-
                             <div class="col-md-6">
-                                <input class="form-control"
-                                       type="text"
-                                       placeholder="Last Name"
-                                       name="l_name"
-                                       required>
+                                <input class="form-control" type="text" placeholder="Last Name" name="l_name" required>
                             </div>
-
                         </div>
 
                         <div class="row">
-
                             <div class="col-md-6">
-
-                                <label class="small text-muted ml-3">
-                                    Date of Birth
-                                </label>
-
-                                <input class="form-control"
-                                       type="date"
-                                       name="dob"
-                                       required>
-
+                                <label class="small text-muted ml-3">Date of Birth</label>
+                                <input class="form-control" type="date" name="dob" required>
                             </div>
-
                             <div class="col-md-6">
-
-                                <label class="small text-muted ml-3">
-                                    &nbsp;
-                                </label>
-
-                                <input class="form-control"
-                                       type="text"
-                                       placeholder="Country"
-                                       name="country"
-                                       required>
-
+                                <label class="small text-muted ml-3">&nbsp;</label>
+                                <input class="form-control" type="text" placeholder="Country" name="country" required>
                             </div>
-
                         </div>
 
                         <div class="row">
-
                             <div class="col-md-6">
-
-                                <input class="form-control"
-                                       type="email"
-                                       placeholder="Email Address"
-                                       name="cust_email"
-                                       required>
-
+                                <input class="form-control" type="email" placeholder="Email Address" name="cust_email" required>
                             </div>
-
                             <div class="col-md-6">
-
-                                <input class="form-control"
-                                       type="text"
-                                       placeholder="Passport Number"
-                                       name="passport_no"
-                                       required>
-
+                                <input class="form-control" type="text" placeholder="Passport Number" name="passport_no" required>
                             </div>
-
                         </div>
 
                         <div class="row">
-
                             <div class="col-md-6">
-
-                                <input class="form-control"
-                                       type="text"
-                                       placeholder="Phone (10 digits)"
-                                       name="cust_phone"
-                                       minlength="10"
-                                       maxlength="10"
-                                       required>
-
+                                <input class="form-control" type="text" placeholder="Phone (10 digits)" name="cust_phone" minlength="10" maxlength="10" required>
                             </div>
-
                             <div class="col-md-6">
-
-                                <select class="form-control"
-                                        name="payment_type"
-                                        required>
-
-                                    <option value="" disabled selected>
-                                        Payment Method
-                                    </option>
-
+                                <select class="form-control" name="payment_type" required>
+                                    <option value="" disabled selected>Payment Method</option>
                                     <option value="Cash">Cash</option>
-
                                     <option value="Card">Card</option>
-
-                                    <option value="Net Banking">
-                                        Net Banking
-                                    </option>
-
+                                    <option value="Net Banking">Net Banking</option>
                                 </select>
-
                             </div>
-
                         </div>
 
-                        <!-- PROMO CODE -->
                         <div class="form-group">
-    <label>Promo Code</label>
-    <input type="text" name="user_promo" class="form-control" placeholder="Enter promo code">
-</div>
+                            <label>Promo Code</label>
+                            <input type="text" name="user_promo" class="form-control" placeholder="Enter promo code">
                         </div>
 
                         <?php if(!empty($promo_message)): ?>
-
-                            <div class="text-center mb-3"
-                                 style="color:#ff8846; font-weight:bold;">
-
+                            <div class="text-center mb-3" style="color:#ff8846; font-weight:bold;">
                                 <?php echo $promo_message; ?>
-
                             </div>
-
                         <?php endif; ?>
 
                         <div id="dependent_section"></div>
@@ -503,129 +415,73 @@ if(isset($_POST['add_booking'])){
                         </div>
 
                         <div class="mt-3">
-
-                            <input type="submit"
-                                   class="submit-btn"
-                                   name="add_booking"
-                                   value="Confirm Booking">
-
+                            <input type="submit" class="submit-btn" name="add_booking" value="Confirm Booking">
                         </div>
 
                         <h3 class="text-center mt-4">
-
-                            Total:
-                            RM <?php echo number_format($final_total, 2); ?>
-
+                            Total: RM <?php echo number_format($final_total, 2); ?>
                         </h3>
 
                         <?php if($discount_amount > 0): ?>
-
                             <div class="text-center text-success">
-
-                                Discount Applied:
-                                RM <?php echo number_format($discount_amount, 2); ?>
-
+                                Discount Applied: RM <?php echo number_format($discount_amount, 2); ?>
                             </div>
-
                         <?php endif; ?>
 
-                        <div class="text-center small text-muted"
-                             id="countdown">
-
+                        <div class="text-center small text-muted" id="countdown">
                             Session expires in 05:00
-
                         </div>
 
                     </form>
 
                 </div>
-
             </div>
-
         </div>
-
     </div>
-
 </div>
 
 <script>
-
     // Timer Logic
     var seconds = 300;
-
     function secondPassed() {
-
         var minutes = Math.floor(seconds / 60);
-
         var remSeconds = seconds % 60;
 
-        if (remSeconds < 10)
-            remSeconds = "0" + remSeconds;
+        if (remSeconds < 10) remSeconds = "0" + remSeconds;
 
-        document.getElementById('countdown').innerHTML =
-            "Session expires in " + minutes + ":" + remSeconds;
+        document.getElementById('countdown').innerHTML = "Session expires in " + minutes + ":" + remSeconds;
 
         if (seconds == 0) {
-
             window.location = "search.php";
-
         } else {
-
             seconds--;
         }
     }
-
     setInterval(secondPassed, 1000);
 
     // Dynamic Dependent Logic
     function addDep() {
-
         var section = document.getElementById("dependent_section");
-
         section.innerHTML = `
             <div class="row" id="dep_row">
-
                 <div class="col-md-5">
-
-                    <input class="form-control"
-                           type="text"
-                           name="dep_name"
-                           placeholder="Dependent Name"
-                           required>
-
+                    <input class="form-control" type="text" name="dep_name" placeholder="Dependent Name" required>
                 </div>
-
                 <div class="col-md-5">
-
-                    <input class="form-control"
-                           type="text"
-                           name="dep_id"
-                           placeholder="Passport Number"
-                           required>
-
+                    <input class="form-control" type="text" name="dep_id" placeholder="Passport Number" required>
                 </div>
-
                 <div class="col-md-2">
-
-                    <button type="button"
-                            id="removeBtn"
-                            onclick="removeDep()">×</button>
-
+                    <button type="button" id="removeBtn" onclick="removeDep()">×</button>
                 </div>
-
             </div>
         `;
-
         document.getElementById("depText").style.display = "none";
     }
 
     function removeDep() {
-
         document.getElementById("dependent_section").innerHTML = "";
-
         document.getElementById("depText").style.display = "block";
     }
-
 </script>
 
 </body>

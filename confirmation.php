@@ -1,5 +1,5 @@
 <?php
-include "db.php";
+include "include/db.php"; // Memastikan laluan ke db.php betul jika ia di dalam folder include
 
 // Standard confirmation fallback function
 function confirm($result) {
@@ -54,8 +54,8 @@ if (isset($_GET['u']) && !empty($_GET['u'])) {
     }
     mysqli_stmt_close($stmt);
 
+    // 2. Fetch Hotel Details (DIBAIKI: Diasingkan daripada sekatan utama)
     if ($branch_id > 0) {
-        // 2. Fetch Hotel Details (Executed only once)
         $stmt = mysqli_prepare($con, "SELECT branch_name FROM hotel WHERE branch_id = ?");
         mysqli_stmt_bind_param($stmt, "i", $branch_id);
         mysqli_stmt_execute($stmt);
@@ -64,8 +64,10 @@ if (isset($_GET['u']) && !empty($_GET['u'])) {
             $branch_name = $row['branch_name'];
         }
         mysqli_stmt_close($stmt);
+    }
 
-        // 3. Find dynamic Room Category from its sub-tables
+    // 3. Find dynamic Room Category from its sub-tables (DIBAIKI: Diasingkan supaya tetap berjalan)
+    if ($room_id > 0) {
         $room_categories = ['simple', 'deluxe', 'suite'];
         foreach ($room_categories as $cat) {
             $query = "SELECT room_id FROM `$cat` WHERE room_id = ?";
@@ -80,41 +82,43 @@ if (isset($_GET['u']) && !empty($_GET['u'])) {
             }
             mysqli_stmt_close($stmt);
         }
+    }
 
-        // Dynamically assign baseline rates
-        switch ($the_room_category) {
-            case "simple": $amount = "50"; break;
-            case "deluxe": $amount = "100"; break;
-            case "suite":  $amount = "150"; break;
-            default:       $amount = "0"; break;
+    // Dynamically assign baseline rates
+    switch ($the_room_category) {
+        case "simple": $amount = "50"; break;
+        case "deluxe": $amount = "100"; break;
+        case "suite":  $amount = "150"; break;
+        default:       $amount = "0"; break;
+    }
+
+    // 4. Fetch check-in/out window from 'forr' table (DIBAIKI: Diasingkan supaya tarikh keluar)
+    $stmt = mysqli_prepare($con, "SELECT check_in_date, check_out_date FROM forr WHERE Booking_id = ?");
+    mysqli_stmt_bind_param($stmt, "s", $booking_id);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    if ($row = mysqli_fetch_assoc($result)) {
+        $check_in  = $row['check_in_date'];
+        $check_out = $row['check_out_date'];
+        if (!empty($check_in) && !empty($check_out)) {
+            $days = ceil((strtotime($check_out) - strtotime($check_in)) / 86400);
         }
+    }
+    mysqli_stmt_close($stmt);
 
-        // 4. Fetch check-in/out window from 'forr' table
-        $stmt = mysqli_prepare($con, "SELECT check_in_date, check_out_date FROM forr WHERE Booking_id = ?");
-        mysqli_stmt_bind_param($stmt, "s", $booking_id);
-        mysqli_stmt_execute($stmt);
-        $result = mysqli_stmt_get_result($stmt);
-        if ($row = mysqli_fetch_assoc($result)) {
-            $check_in  = $row['check_in_date'];
-            $check_out = $row['check_out_date'];
-            if (!empty($check_in) && !empty($check_out)) {
-                $days = ceil((strtotime($check_out) - strtotime($check_in)) / 86400);
-            }
-        }
-        mysqli_stmt_close($stmt);
+    // 5. Fetch associated Bill IDs
+    $stmt = mysqli_prepare($con, "SELECT Bill_id, booking_date FROM generates WHERE Booking_id = ?");
+    mysqli_stmt_bind_param($stmt, "s", $booking_id);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    if ($row = mysqli_fetch_assoc($result)) {
+        $bill_id      = $row['Bill_id'];
+        $booking_date = $row['booking_date'];
+    }
+    mysqli_stmt_close($stmt);
 
-        // 5. Fetch associated Bill IDs
-        $stmt = mysqli_prepare($con, "SELECT Bill_id, booking_date FROM generates WHERE Booking_id = ?");
-        mysqli_stmt_bind_param($stmt, "s", $booking_id);
-        mysqli_stmt_execute($stmt);
-        $result = mysqli_stmt_get_result($stmt);
-        if ($row = mysqli_fetch_assoc($result)) {
-            $bill_id      = $row['Bill_id'];
-            $booking_date = $row['booking_date'];
-        }
-        mysqli_stmt_close($stmt);
-
-        // 6. Fetch transactional Bill totals
+    // 6. Fetch transactional Bill totals
+    if ($bill_id > 0) {
         $stmt = mysqli_prepare($con, "SELECT Amount, Payment_type FROM bill WHERE Bill_id = ?");
         mysqli_stmt_bind_param($stmt, "i", $bill_id);
         mysqli_stmt_execute($stmt);
@@ -124,8 +128,10 @@ if (isset($_GET['u']) && !empty($_GET['u'])) {
             $payment      = $row['Payment_type'];
         }
         mysqli_stmt_close($stmt);
+    }
 
-        // 7. Get Room labels
+    // 7. Get Room labels
+    if ($room_id > 0) {
         $stmt = mysqli_prepare($con, "SELECT room_no FROM rooms WHERE room_id = ?");
         mysqli_stmt_bind_param($stmt, "i", $room_id);
         mysqli_stmt_execute($stmt);
@@ -134,8 +140,10 @@ if (isset($_GET['u']) && !empty($_GET['u'])) {
             $room_no = $row['room_no'];
         }
         mysqli_stmt_close($stmt);
+    }
 
-        // 8. Pull main profile information
+    // 8. Pull main profile information
+    if ($cust_id > 0) {
         $stmt = mysqli_prepare($con, "SELECT f_name, l_name, cust_email, cust_phone, country, dob, passport_no FROM customer WHERE cust_id = ?");
         mysqli_stmt_bind_param($stmt, "i", $cust_id);
         mysqli_stmt_execute($stmt);
